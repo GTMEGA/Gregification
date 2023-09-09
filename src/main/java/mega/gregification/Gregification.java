@@ -4,7 +4,6 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import gregtech.api.GregTech_API;
 import mega.gregification.mods.gregtech.Fuels;
 import mega.gregification.mods.gregtech.machines.*;
 import minetweaker.MineTweakerAPI;
@@ -53,23 +52,19 @@ public class Gregification {
         MineTweakerAPI.registerClass(Unpacker.class);
         MineTweakerAPI.registerClass(VacuumFreezer.class);
         MineTweakerAPI.registerClass(Wiremill.class);
-        if (GregTech_API.VERSION >= 508) {
-            MineTweakerAPI.registerClass(ArcFurnace.class);
-            MineTweakerAPI.registerClass(DistillationTower.class);
-            MineTweakerAPI.registerClass(FusionReactor.class);
-            MineTweakerAPI.registerClass(PlasmaArcFurnace.class);
-        }
-        if (GregTech_API.VERSION >= 509) {
-            MineTweakerAPI.registerClass(PyrolyseOven.class);
-            MineTweakerAPI.registerClass(OilCracker.class);
-            MineTweakerAPI.registerClass(AssemblyLine.class);
-            MineTweakerAPI.registerClass(CircuitAssembler.class);
-            MineTweakerAPI.registerClass(Compressor.class);
-            MineTweakerAPI.registerClass(Extractor.class);
-            MineTweakerAPI.registerClass(OreWasher.class);
-            MineTweakerAPI.registerClass(ThermalCentrifuge.class);
-            MineTweakerAPI.registerClass(PrimitiveBlastFurnace.class);
-        }
+        MineTweakerAPI.registerClass(ArcFurnace.class);
+        MineTweakerAPI.registerClass(DistillationTower.class);
+        MineTweakerAPI.registerClass(FusionReactor.class);
+        MineTweakerAPI.registerClass(PlasmaArcFurnace.class);
+        MineTweakerAPI.registerClass(PyrolyseOven.class);
+        MineTweakerAPI.registerClass(OilCracker.class);
+        MineTweakerAPI.registerClass(AssemblyLine.class);
+        MineTweakerAPI.registerClass(CircuitAssembler.class);
+        MineTweakerAPI.registerClass(Compressor.class);
+        MineTweakerAPI.registerClass(Extractor.class);
+        MineTweakerAPI.registerClass(OreWasher.class);
+        MineTweakerAPI.registerClass(ThermalCentrifuge.class);
+        MineTweakerAPI.registerClass(PrimitiveBlastFurnace.class);
     }
     
     @EventHandler
