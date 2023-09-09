@@ -1,0 +1,9 @@
+// Add your dependencies here
+
+dependencies {
+    implementation("codechicken:codechickencore-mc1.7.10:1.1.0-mega:dev")
+    implementation("codechicken:codechickenlib-mc1.7.10:1.2.0-mega:dev")
+    implementation("codechicken:notenoughitems-mc1.7.10:2.1.6-gtmega:dev")
+    implementation("gtmega:gt5u-mc1.7.10:5.32.0-mega:dev")
+    implementation("mega:crafttweaker-mc1.7.10:3.2.9-mega:dev")
+}

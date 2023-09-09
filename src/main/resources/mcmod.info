@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "${modId}",
+    "name": "${modName}",
+    "description": "CraftTweaker gregification stage 2.",
+    "version": "${modVersion}",
+    "mcversion": "${minecraftVersion}",
+    "url": "https://github.com/GTMEGA/Gregification",
+    "updateUrl": "",
+    "authorList": ["The MEGA team"],
+    "credits": "Stan Hebben, Blood Asp, bculkin2442",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
