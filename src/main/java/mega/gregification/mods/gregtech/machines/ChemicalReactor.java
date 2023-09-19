@@ -1,6 +1,7 @@
 package mega.gregification.mods.gregtech.machines;
 
 import gregtech.api.util.GT_Recipe;
+import lombok.val;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.annotations.ModOnly;
@@ -46,7 +47,7 @@ public class ChemicalReactor {
     }
 
     @ZenMethod
-    public static void addRecipe(IItemStack[] inputArray, ILiquidStack[] inputFluidArray, IIngredient[] outputArray, ILiquidStack[] outputFluidArray, int[] chances, int durationTicks, boolean addToSmall, int euPerTick, boolean addToLarge) {
+    public static void addRecipe(IItemStack[] inputArray, ILiquidStack[] inputFluidArray, IIngredient[] outputArray, ILiquidStack[] outputFluidArray, int[] chances, int durationTicks,  int euPerTick,boolean addToSmall, boolean addToLarge) {
 
         if (!addToLarge && !addToSmall) {
             MineTweakerAPI.logError("Recipe needs to add to at least 1 chemical reactor type");
@@ -57,12 +58,25 @@ public class ChemicalReactor {
                     inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick,addToSmall,addToLarge ) {
                 @Override
                 protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false, i.nextItemArr(), i.nextItemArr(), null, i.nextIntArr(), i.nextFluidArr(), i.nextFluidArr(), i.nextInt(), i.nextInt(), 0);
+                    val inputArray = i.nextItemArr();
+                    val outArray = i.nextItemArr();
+                    val chances = i.nextIntArr();
+                    val flInArray = i.nextFluidArr();
+                    val flOutArray =  i.nextFluidArr();
+                    val ticks = i.nextInt();
+                    val power = i.nextInt();
+
                     if (i.nextBool()) {
+                        GT_Recipe recipe = new GT_Recipe(false, inputArray, outArray, null,
+                                chances, flInArray, flOutArray, ticks, power, 0);
                         GT_Recipe.GT_Recipe_Map.sChemicalRecipes.addRecipe(recipe);
-                    }
-                    if (i.nextBool()) {
-                        GT_Recipe.GT_Recipe_Map.sMultiblockChemicalRecipes.addRecipe(recipe);
+                    } else if (i.nextBool()) {
+                        GT_Recipe.GT_Recipe_Map_LargeChemicalReactor.GT_Recipe_LargeChemicalReactor mulRecipe =
+                                new GT_Recipe.GT_Recipe_Map_LargeChemicalReactor.GT_Recipe_LargeChemicalReactor(
+                                        false, inputArray, outArray, null,
+                                        chances, flInArray, flOutArray, ticks, power, 0
+                                );
+                        GT_Recipe.GT_Recipe_Map.sMultiblockChemicalRecipes.addRecipe(mulRecipe);
                     }
                 }
             });

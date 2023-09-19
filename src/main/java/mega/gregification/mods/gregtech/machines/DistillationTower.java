@@ -56,8 +56,8 @@ public class DistillationTower {
                     inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
                 @Override
                 protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),0);
-                    GT_Recipe.GT_Recipe_Map.sDistillationRecipes.addRecipe(recipe);
+                    GT_Recipe.GT_Recipe_Map.sDistillationRecipes.addRecipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),
+                            i.nextInt(),i.nextInt(),0);
                 }
             });
         }
