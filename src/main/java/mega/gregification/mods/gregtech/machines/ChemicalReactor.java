@@ -1,6 +1,8 @@
 package mega.gregification.mods.gregtech.machines;
 
+import gregtech.api.enums.ItemList;
 import gregtech.api.util.GT_Recipe;
+import gregtech.api.util.GT_Utility;
 import lombok.val;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import minetweaker.MineTweakerAPI;
@@ -8,10 +10,14 @@ import minetweaker.annotations.ModOnly;
 import minetweaker.api.item.IIngredient;
 import minetweaker.api.item.IItemStack;
 import minetweaker.api.liquid.ILiquidStack;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static gregtech.api.enums.GT_Values.MOD_ID;
 import static gregtech.api.enums.GT_Values.RA;
@@ -70,17 +76,50 @@ public class ChemicalReactor {
                         GT_Recipe recipe = new GT_Recipe(false, inputArray, outArray, null,
                                 chances, flInArray, flOutArray, ticks, power, 0);
                         GT_Recipe.GT_Recipe_Map.sChemicalRecipes.addRecipe(recipe);
-                    } else if (i.nextBool()) {
+                    }
+                    if (i.nextBool()) {
+                        val removedIn = removeCells(inputArray,flInArray);
+                        val removedOut = removeCells(outArray,flOutArray);
+
                         GT_Recipe.GT_Recipe_Map_LargeChemicalReactor.GT_Recipe_LargeChemicalReactor mulRecipe =
                                 new GT_Recipe.GT_Recipe_Map_LargeChemicalReactor.GT_Recipe_LargeChemicalReactor(
-                                        false, inputArray, outArray, null,
-                                        chances, flInArray, flOutArray, ticks, power, 0
+                                        false, removeNull(inputArray), removeNull(outArray), null,
+                                        chances, removedIn, removedOut, ticks, power, 0
                                 );
                         GT_Recipe.GT_Recipe_Map.sMultiblockChemicalRecipes.addRecipe(mulRecipe);
                     }
                 }
             });
         }
+    }
+
+    static ItemStack emptyCell = ItemList.Cell_Empty.get(1L);
+
+    private static FluidStack[] removeCells(ItemStack[] items,FluidStack[] fluids) {
+        val extendedFluids = new ArrayList<>(Arrays.asList(fluids));
+        for (int it = 0; it < items.length;it++) {
+            val item = items[it];
+            if (item == null) continue;
+            val fluid = GT_Utility.getFluidForFilledItem(item, true);
+            if (emptyCell.getItem() == item.getItem() && emptyCell.getItemDamage() == item.getItemDamage()) {
+                items[it] = null;
+                continue;
+            }
+            if (fluid == null) continue;
+            fluid.amount *= item.stackSize;
+            extendedFluids.add(fluid);
+            items[it] = null;
+        }
+        return extendedFluids.toArray(new FluidStack[0]);
+    }
+
+    private static ItemStack[] removeNull(ItemStack[] array) {
+        ArrayList<ItemStack> newArr = new ArrayList<>();
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null) continue;
+            newArr.add(array[i]);
+        }
+        return newArr.toArray(new ItemStack[0]);
     }
 
     @ZenMethod
