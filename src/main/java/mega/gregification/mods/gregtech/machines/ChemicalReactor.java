@@ -4,12 +4,14 @@ import gregtech.api.enums.ItemList;
 import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
 import lombok.val;
+import lombok.var;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.annotations.ModOnly;
 import minetweaker.api.item.IIngredient;
 import minetweaker.api.item.IItemStack;
 import minetweaker.api.liquid.ILiquidStack;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import stanhebben.zenscript.annotations.ZenClass;
@@ -30,6 +32,10 @@ import static gregtech.api.enums.GT_Values.RA;
 @ZenClass("mods.gregtech.ChemicalReactor")
 @ModOnly(MOD_ID)
 public class ChemicalReactor {
+
+    static ItemStack emptyCell = ItemList.Cell_Empty.get(1L);
+    static Item circuit = GT_Utility.getIntegratedCircuit(0).getItem();
+
     /**
      * Adds a Chemical Reactor recipe.
      *
@@ -73,7 +79,14 @@ public class ChemicalReactor {
                     val power = i.nextInt();
 
                     if (i.nextBool()) {
-                        GT_Recipe recipe = new GT_Recipe(false, inputArray, outArray, null,
+                        var itemInArray = inputArray;
+                        if (itemInArray.length > 2) {
+                            itemInArray = removeCircuit(itemInArray.clone());
+                            if (itemInArray.length > 2) {
+                                MineTweakerAPI.logError("to many inputs");
+                            }
+                        }
+                        GT_Recipe recipe = new GT_Recipe(false, itemInArray, outArray, null,
                                 chances, flInArray, flOutArray, ticks, power, 0);
                         GT_Recipe.GT_Recipe_Map.sChemicalRecipes.addRecipe(recipe);
                     }
@@ -93,7 +106,13 @@ public class ChemicalReactor {
         }
     }
 
-    static ItemStack emptyCell = ItemList.Cell_Empty.get(1L);
+    private static ItemStack[] removeCircuit(ItemStack[] in) {
+        for (int j = 0; j < in.length; j++) {
+            if (!in[j].getItem().equals(circuit)) continue;
+            in[j] = null;
+        }
+        return removeNull(in);
+    }
 
     private static FluidStack[] removeCells(ItemStack[] items,FluidStack[] fluids) {
         val extendedFluids = new ArrayList<>(Arrays.asList(fluids));
