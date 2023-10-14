@@ -59,6 +59,7 @@ public class BlastFurnace {
                 @Override
                 protected void applySingleRecipe(ArgIterator i) {
                     GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),i.nextInt());
+                    GT_Recipe.GT_Recipe_Map.sBlastRecipes.addRecipe(recipe);
                 }
             });
         }
