@@ -6,8 +6,8 @@ group = "mega"
 
 minecraft_fp {
     mod {
-        modid = "Gregification"
-        name = "gregification"
+        modid = "gregification"
+        name = "Gregification"
         rootPkg = "$group.gregification"
     }
     tokens {
