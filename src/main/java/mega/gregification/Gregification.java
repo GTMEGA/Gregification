@@ -8,9 +8,9 @@ import mega.gregification.mods.gregtech.Fuels;
 import mega.gregification.mods.gregtech.machines.*;
 import minetweaker.MineTweakerAPI;
 
-@Mod(modid = Tags.MODID,
-     name = Tags.MODNAME,
-     version = Tags.VERSION,
+@Mod(modid = Tags.MOD_ID,
+     name = Tags.MOD_NAME,
+     version = Tags.MOD_VERSION,
      acceptedMinecraftVersions = "[1.7.10]")
 public class Gregification {
 	@EventHandler
