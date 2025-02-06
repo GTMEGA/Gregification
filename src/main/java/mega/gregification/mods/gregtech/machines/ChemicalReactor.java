@@ -50,10 +50,15 @@ public class ChemicalReactor {
      */
     @ZenMethod
     public static void addRecipe(IItemStack output1, IItemStack output2, ILiquidStack fluidOutput, IIngredient input1, IIngredient input2, ILiquidStack fluidInput, int durationTicks, int euPerTick) {
-        MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Chemical Reactor recipe for " + output1, input1, input2, fluidInput, fluidOutput, output1, output2, durationTicks, euPerTick) {
+        MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe[]>("Adding Chemical Reactor recipe for " + output1, input1, input2, fluidInput, fluidOutput, output1, output2, durationTicks, euPerTick) {
             @Override
-            protected void applySingleRecipe(ArgIterator i) {
-                RA.addChemicalRecipe(i.nextItem(), i.nextItem(), i.nextFluid(), i.nextFluid(), i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+            protected GT_Recipe[] applySingleRecipe(ArgIterator i) {
+                return RA.addChemicalRecipeRemovable(i.nextItem(), i.nextItem(), i.nextFluid(), i.nextFluid(), i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+            }
+
+            @Override
+            protected void undoSingleRecipe(GT_Recipe[] recipe) {
+                RA.removeChemicalRecipe(recipe);
             }
         });
     }
@@ -66,10 +71,10 @@ public class ChemicalReactor {
         } else if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+            MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe[]>("Adding Chemical Reactor recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
                     inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick,addToSmall,addToLarge ) {
                 @Override
-                protected void applySingleRecipe(ArgIterator i) {
+                protected GT_Recipe[] applySingleRecipe(ArgIterator i) {
                     val inputArray = i.nextItemArr();
                     val outArray = i.nextItemArr();
                     val chances = i.nextIntArr();
@@ -78,6 +83,8 @@ public class ChemicalReactor {
                     val ticks = i.nextInt();
                     val power = i.nextInt();
 
+                    GT_Recipe simple = null;
+                    GT_Recipe multi = null;
                     if (i.nextBool()) {
                         var itemInArray = inputArray;
                         if (itemInArray.length > 2) {
@@ -88,7 +95,7 @@ public class ChemicalReactor {
                         }
                         GT_Recipe recipe = new GT_Recipe(false, itemInArray, outArray, null,
                                 chances, flInArray, flOutArray, ticks, power, 0);
-                        GT_Recipe.GT_Recipe_Map.sChemicalRecipes.addRecipe(recipe);
+                        simple = GT_Recipe.GT_Recipe_Map.sChemicalRecipes.addRecipe(recipe);
                     }
                     if (i.nextBool()) {
                         val removedIn = removeCells(inputArray,flInArray);
@@ -99,7 +106,22 @@ public class ChemicalReactor {
                                         false, removeNull(inputArray), removeNull(outArray), null,
                                         chances, removedIn, removedOut, ticks, power, 0
                                 );
-                        GT_Recipe.GT_Recipe_Map.sMultiblockChemicalRecipes.addRecipe(mulRecipe);
+                        multi = GT_Recipe.GT_Recipe_Map.sMultiblockChemicalRecipes.addRecipe(mulRecipe);
+                    }
+                    if (simple == null && multi == null)
+                        return null;
+                    return new GT_Recipe[]{simple, multi};
+                }
+
+                @Override
+                protected void undoSingleRecipe(GT_Recipe[] recipe) {
+                    val simple = recipe[0];
+                    val multi = recipe[1];
+                    if (simple != null) {
+                        GT_Recipe.GT_Recipe_Map.sChemicalRecipes.remove(simple);
+                    }
+                    if (multi != null) {
+                        GT_Recipe.GT_Recipe_Map.sMultiblockChemicalRecipes.remove(multi);
                     }
                 }
             });

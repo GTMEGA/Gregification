@@ -1,6 +1,7 @@
 package mega.gregification.mods.gregtech.machines;
 
 import gregtech.api.util.GT_Recipe;
+import mega.gregification.mods.AddGTDirectRecipeAction;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import mega.gregification.util.ArrayHelper;
 import minetweaker.MineTweakerAPI;
@@ -48,10 +49,15 @@ public class ImplosionCompressor {
         if (output.length == 0) {
             MineTweakerAPI.logError("Implosion compressor recipe requires at least 1 output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Implosion compressor recipe for " + output[0], input, tnt, output[0], ArrayHelper.itemOrNull(output, 1)) {
+            MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe[]>("Adding Implosion Compressor recipe for " + output[0], input, tnt, output[0], ArrayHelper.itemOrNull(output, 1)) {
                 @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    RA.addImplosionRecipe(i.nextItem(), i.nextInt(), i.nextItem(), i.nextItem());
+                protected GT_Recipe[] applySingleRecipe(ArgIterator i) {
+                    return RA.addImplosionRecipeRemovable(i.nextItem(), i.nextInt(), i.nextItem(), i.nextItem());
+                }
+
+                @Override
+                protected void undoSingleRecipe(GT_Recipe[] recipe) {
+                    RA.removeImplosionRecipe(recipe);
                 }
             });
         }
@@ -62,14 +68,8 @@ public class ImplosionCompressor {
         if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
-                    inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
-                @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),0);
-                    GT_Recipe.GT_Recipe_Map.sImplosionRecipes.addRecipe(recipe);
-                }
-            });
+            MineTweakerAPI.apply(new AddGTDirectRecipeAction(GT_Recipe.GT_Recipe_Map.sImplosionRecipes, "Adding Implosion Compressor recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+                                                             inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick));
         }
     }
 }

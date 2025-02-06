@@ -1,6 +1,7 @@
 package mega.gregification.mods.gregtech.machines;
 
 import gregtech.api.util.GT_Recipe;
+import mega.gregification.mods.AddGTDirectRecipeAction;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import mega.gregification.util.ArrayHelper;
 import minetweaker.MineTweakerAPI;
@@ -43,12 +44,17 @@ public class Centrifuge {
         } else if (outputs.length != chances.length) {
             MineTweakerAPI.logError("Number of Outputs does not equal number of Chances");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Centrifuge recipe with Fluids for " + input1, input1, input2, fluidOutput, fluidInput, outputs[0],
+            MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe>("Adding Centrifuge recipe with Fluids for " + input1, input1, input2, fluidOutput, fluidInput, outputs[0],
                                                              ArrayHelper.itemOrNull(outputs, 1), ArrayHelper.itemOrNull(outputs, 2), ArrayHelper.itemOrNull(outputs, 3), ArrayHelper.itemOrNull(outputs, 4), ArrayHelper.itemOrNull(outputs, 5), chances, durationTicks, euPerTick) {
                 @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    RA.addCentrifugeRecipe(i.nextItem(), i.nextItem(), i.nextFluid(), i.nextFluid(), i.nextItem(), i.nextItem(),
+                protected GT_Recipe applySingleRecipe(ArgIterator i) {
+                    return RA.addCentrifugeRecipeRemovable(i.nextItem(), i.nextItem(), i.nextFluid(), i.nextFluid(), i.nextItem(), i.nextItem(),
                             i.nextItem(), i.nextItem(), i.nextItem(), i.nextItem(), i.nextIntArr(), i.nextInt(), i.nextInt());
+                }
+
+                @Override
+                protected void undoSingleRecipe(GT_Recipe recipe) {
+                    RA.removeCentrifugeRecipe(recipe);
                 }
             });
         }
@@ -59,14 +65,8 @@ public class Centrifuge {
         if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
-                    inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
-                @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),0);
-                    GT_Recipe.GT_Recipe_Map.sCentrifugeRecipes.addRecipe(recipe);
-                }
-            });
+            MineTweakerAPI.apply(new AddGTDirectRecipeAction(GT_Recipe.GT_Recipe_Map.sCentrifugeRecipes, "Adding Centrifuge recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+                                                             inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick));
         }
     }
 
@@ -80,12 +80,17 @@ public class Centrifuge {
         if (outputs.length < 1) {
             MineTweakerAPI.logError("Centrifuge must have at least 1 output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding centrifuge recipe with input " + input, input, cells, outputs[0],
+            MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe>("Adding Centrifuge recipe with input " + input, input, cells, outputs[0],
                                                              ArrayHelper.itemOrNull(outputs, 1), ArrayHelper.itemOrNull(outputs, 2), ArrayHelper.itemOrNull(outputs, 3), ArrayHelper.itemOrNull(outputs, 4), ArrayHelper.itemOrNull(outputs, 5), durationTicks) {
                 @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    RA.addCentrifugeRecipe(i.nextItem(), i.nextInt(), i.nextItem(), i.nextItem(),
+                protected GT_Recipe applySingleRecipe(ArgIterator i) {
+                    return RA.addCentrifugeRecipeRemovable(i.nextItem(), i.nextInt(), i.nextItem(), i.nextItem(),
                             i.nextItem(), i.nextItem(), i.nextItem(), i.nextItem(), i.nextInt());
+                }
+
+                @Override
+                protected void undoSingleRecipe(GT_Recipe recipe) {
+                    RA.removeCentrifugeRecipe(recipe);
                 }
             });
         }

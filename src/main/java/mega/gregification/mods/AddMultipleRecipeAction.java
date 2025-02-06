@@ -1,8 +1,10 @@
 package mega.gregification.mods;
 
+import lombok.val;
 import mega.gregification.util.exception.AnyIngredientException;
 import mega.gregification.util.exception.EmptyIngredientException;
 import mega.gregification.util.exception.OutOfStackSizeException;
+import minetweaker.IUndoableAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.OneWayAction;
 import minetweaker.api.item.IIngredient;
@@ -17,7 +19,7 @@ import java.util.*;
 /**
  * Created by Techlone
  */
-public abstract class AddMultipleRecipeAction extends OneWayAction {
+public abstract class AddMultipleRecipeAction<T> implements IUndoableAction {
     private static List<List<Object>> createNewMatrix(int initCount) {
         return new ArrayList<List<Object>>(initCount) {{
             this.add(new ArrayList<Object>());
@@ -50,6 +52,7 @@ public abstract class AddMultipleRecipeAction extends OneWayAction {
 
     private String description;
     private List<List<Object>> recipesData;
+    private List<T> undoData;
 
     private void addArgument(Object recipeArg) {
         if (recipeArg instanceof ILiquidStack) {
@@ -121,7 +124,8 @@ public abstract class AddMultipleRecipeAction extends OneWayAction {
         }
     }
 
-    protected abstract void applySingleRecipe(ArgIterator i);
+    protected abstract T applySingleRecipe(ArgIterator i);
+    protected abstract void undoSingleRecipe(T recipe);
 
     protected static class ArgIterator {
         private Iterator<Object> iterator;
@@ -161,14 +165,42 @@ public abstract class AddMultipleRecipeAction extends OneWayAction {
 
     @Override
     public void apply() {
+        val undoData = new ArrayList<T>();
         for (List<Object> recipeData : recipesData) {
-            applySingleRecipe(new ArgIterator(recipeData));
+            val r = applySingleRecipe(new ArgIterator(recipeData));
+            if (r != null) {
+                undoData.add(r);
+            }
+        }
+        if (!undoData.isEmpty()) {
+            this.undoData = undoData;
+        }
+    }
+
+    @Override
+    public void undo() {
+        if (undoData == null)
+            return;
+        val undoData = this.undoData;
+        this.undoData = null;
+        for (T recipe: undoData) {
+            undoSingleRecipe(recipe);
         }
     }
 
     @Override
     public String describe() {
         return this.description;
+    }
+
+    @Override
+    public String describeUndo() {
+        return this.description.replace("Adding", "Removing");
+    }
+
+    @Override
+    public boolean canUndo() {
+        return true;
     }
 
     @Override

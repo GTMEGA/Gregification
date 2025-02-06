@@ -1,6 +1,7 @@
 package mega.gregification.mods.gregtech.machines;
 
 import gregtech.api.util.GT_Recipe;
+import mega.gregification.mods.AddGTDirectRecipeAction;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.annotations.ModOnly;
@@ -33,10 +34,15 @@ public class FluidCanner {
      */
     @ZenMethod
     public static void addRecipe(IItemStack output, IIngredient input, ILiquidStack fluidOutput, ILiquidStack fluidInput) {
-        MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Fluid Canner recipe for " + input, input, output, fluidInput, fluidOutput) {
+        MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe>("Adding Fluid Canner recipe for " + input, input, output, fluidInput, fluidOutput) {
             @Override
-            protected void applySingleRecipe(ArgIterator i) {
-                RA.addFluidCannerRecipe(i.nextItem(), i.nextItem(), i.nextFluid(), i.nextFluid());
+            protected GT_Recipe applySingleRecipe(ArgIterator i) {
+                return RA.addFluidCannerRecipeRemovable(i.nextItem(), i.nextItem(), i.nextFluid(), i.nextFluid());
+            }
+
+            @Override
+            protected void undoSingleRecipe(GT_Recipe recipe) {
+                RA.removeFluidCannerRecipe(recipe);
             }
         });
     }
@@ -46,14 +52,8 @@ public class FluidCanner {
         if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
-                    inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
-                @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),0);
-                    GT_Recipe.GT_Recipe_Map.sFluidCannerRecipes.addRecipe(recipe);
-                }
-            });
+            MineTweakerAPI.apply(new AddGTDirectRecipeAction(GT_Recipe.GT_Recipe_Map.sFluidCannerRecipes, "Adding Fluid Canner recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+                                                             inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick));
         }
     }
 }

@@ -38,10 +38,15 @@ public class DistillationTower {
         if (fluidOutput.length < 1) {
             MineTweakerAPI.logError("Distillation Tower must have at least 1 Fluid output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Distillation Tower recipe for " + fluidInput.getDisplayName(), fluidInput, fluidOutput, itemOutput, durationTicks, euPerTick) {
+            MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe>("Adding Distillation Tower recipe for " + fluidInput.getDisplayName(), fluidInput, fluidOutput, itemOutput, durationTicks, euPerTick) {
                 @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    RA.addDistillationTowerRecipe(i.nextFluid(), i.nextFluidArr(), i.nextItem(), i.nextInt(), i.nextInt());
+                protected GT_Recipe applySingleRecipe(ArgIterator i) {
+                    return RA.addDistillationTowerRecipeRemovable(i.nextFluid(), i.nextFluidArr(), i.nextItem(), i.nextInt(), i.nextInt());
+                }
+
+                @Override
+                protected void undoSingleRecipe(GT_Recipe recipe) {
+                    RA.removeDistillationTowerRecipe(recipe);
                 }
             });
         }
@@ -52,12 +57,17 @@ public class DistillationTower {
         if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+            MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe>("Adding Distillation Tower recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
                     inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
                 @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe.GT_Recipe_Map.sDistillationRecipes.addRecipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),
+                protected GT_Recipe applySingleRecipe(ArgIterator i) {
+                    return GT_Recipe.GT_Recipe_Map.sDistillationRecipes.addRecipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),
                             i.nextInt(),i.nextInt(),0);
+                }
+
+                @Override
+                protected void undoSingleRecipe(GT_Recipe recipe) {
+                    GT_Recipe.GT_Recipe_Map.sDistillationRecipes.remove(recipe);
                 }
             });
         }
@@ -65,10 +75,15 @@ public class DistillationTower {
 
     @ZenMethod
     public static void addUniversalRecipe(ILiquidStack[] fluidOutput, IItemStack itemOutput, ILiquidStack fluidInput, int durationTicks, int euPerTick) {
-        MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding universal distillation recipe for " + fluidInput.getDisplayName(), fluidInput, fluidOutput, itemOutput, durationTicks, euPerTick) {
+        MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe[][]>("Adding universal distillation recipe for " + fluidInput.getDisplayName(), fluidInput, fluidOutput, itemOutput, durationTicks, euPerTick) {
             @Override
-            protected void applySingleRecipe(ArgIterator i) {
-                RA.addUniversalDistillationRecipe(i.nextFluid(), i.nextFluidArr(), i.nextItem(), i.nextInt(), i.nextInt());
+            protected GT_Recipe[][] applySingleRecipe(ArgIterator i) {
+                return RA.addUniversalDistillationRecipeRemovable(i.nextFluid(), i.nextFluidArr(), i.nextItem(), i.nextInt(), i.nextInt());
+            }
+
+            @Override
+            protected void undoSingleRecipe(GT_Recipe[][] recipe) {
+                RA.removeUniversalDistillationRecipe(recipe);
             }
         });
     }

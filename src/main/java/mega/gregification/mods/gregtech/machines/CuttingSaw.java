@@ -1,6 +1,7 @@
 package mega.gregification.mods.gregtech.machines;
 
 import gregtech.api.util.GT_Recipe;
+import mega.gregification.mods.AddGTDirectRecipeAction;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import mega.gregification.util.ArrayHelper;
 import minetweaker.MineTweakerAPI;
@@ -38,17 +39,27 @@ public class CuttingSaw {
     @ZenMethod
     public static void addRecipe(IItemStack output1, IItemStack output2, IIngredient input, ILiquidStack lubricant, int durationTicks, int euPerTick) {
         if (lubricant == null) {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Cutting Saw recipe for " + input, input, output1, output2, durationTicks, euPerTick) {
+            MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe[]>("Adding Cutting Saw recipe for " + input, input, output1, output2, durationTicks, euPerTick) {
                 @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    RA.addCutterRecipe(i.nextItem(), i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+                protected GT_Recipe[] applySingleRecipe(ArgIterator i) {
+                    return RA.addCutterRecipeRemovable(i.nextItem(), i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+                }
+
+                @Override
+                protected void undoSingleRecipe(GT_Recipe[] recipe) {
+                    RA.removeCutterRecipe(recipe);
                 }
             });
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Cutting Saw recipe for " + input, input, lubricant, output1, output2, durationTicks, euPerTick) {
+            MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe[]>("Adding Cutting Saw recipe for " + input, input, lubricant, output1, output2, durationTicks, euPerTick) {
                 @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    RA.addCutterRecipe(i.nextItem(), i.nextFluid(), i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+                protected GT_Recipe[] applySingleRecipe(ArgIterator i) {
+                    return RA.addCutterRecipeRemovable(i.nextItem(), i.nextFluid(), i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+                }
+
+                @Override
+                protected void undoSingleRecipe(GT_Recipe[] recipe) {
+                    RA.removeCutterRecipe(recipe);
                 }
             });
         }
@@ -68,23 +79,22 @@ public class CuttingSaw {
         if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
-                    inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
-                @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),0);
-                    GT_Recipe.GT_Recipe_Map.sCutterRecipes.addRecipe(recipe);
-                }
-            });
+            MineTweakerAPI.apply(new AddGTDirectRecipeAction(GT_Recipe.GT_Recipe_Map.sCutterRecipes, "Adding Cutting Saw recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+                                                             inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick));
         }
     }
     
     @ZenMethod
     public static void addRecipe(IItemStack output1, IItemStack output2, IIngredient input, IItemStack circuit, int durationTicks, int euPerTick) {
-        MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Cutting Saw recipe for " + input, input, circuit, output1, output2, durationTicks, euPerTick) {
+        MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe[]>("Adding Cutting Saw recipe for " + input, input, circuit, output1, output2, durationTicks, euPerTick) {
             @Override
-            protected void applySingleRecipe(ArgIterator i) {
-                RA.addCutterRecipe(i.nextItem(), i.nextItem(), i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+            protected GT_Recipe[] applySingleRecipe(ArgIterator i) {
+                return RA.addCutterRecipeRemovable(i.nextItem(), i.nextItem(), i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+            }
+
+            @Override
+            protected void undoSingleRecipe(GT_Recipe[] recipe) {
+                RA.removeCutterRecipe(recipe);
             }
         });
     }

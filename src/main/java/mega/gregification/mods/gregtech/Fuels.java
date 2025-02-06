@@ -1,10 +1,13 @@
 package mega.gregification.mods.gregtech;
 
+import gregtech.api.util.GT_Recipe;
+import lombok.val;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.annotations.ModOnly;
 import minetweaker.api.item.IIngredient;
 import minetweaker.api.item.IItemStack;
+import org.apache.commons.lang3.tuple.Pair;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
@@ -101,7 +104,7 @@ public class Fuels {
     // ### Action classes ###
     // ######################
 
-    private static class AddRecipeAction extends AddMultipleRecipeAction {
+    private static class AddRecipeAction extends AddMultipleRecipeAction<Pair<GT_Recipe[], Integer>> {
         private static final String[] GENERATORS = {"diesel", "gas turbine", "thermal", "dense fluid", "plasma", "magic"};
 
         public AddRecipeAction(IItemStack output, IIngredient input, int euPerMillibucket, int type) {
@@ -109,8 +112,22 @@ public class Fuels {
         }
 
         @Override
-        protected void applySingleRecipe(ArgIterator i) {
-            RA.addFuel(i.nextItem(), i.nextItem(), i.nextInt(), i.nextInt());
+        protected Pair<GT_Recipe[], Integer> applySingleRecipe(ArgIterator i) {
+            val a = i.nextItem();
+            val b = i.nextItem();
+            val eu = i.nextInt();
+            val type = i.nextInt();
+            val fuel = RA.addFuelRemovable(a, b, eu, type);
+            if (fuel != null) {
+                return Pair.of(fuel, type);
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        protected void undoSingleRecipe(Pair<GT_Recipe[], Integer> recipe) {
+            RA.removeFuel(recipe.getLeft(), recipe.getRight());
         }
     }
 }

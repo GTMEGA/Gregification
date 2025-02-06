@@ -31,6 +31,6 @@ repositories {
 }
 
 dependencies {
-    implementation("gtmega:gt5u-mc1.7.10:5.43.4-mega:dev")
-    implementation("mega:crafttweaker-mc1.7.10:3.5.0:dev")
+    implementation("gtmega:gt5u-mc1.7.10:5.44.0-mega:dev")
+    implementation("mega:crafttweaker-mc1.7.10:3.5.1:dev")
 }

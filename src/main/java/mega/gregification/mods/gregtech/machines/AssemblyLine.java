@@ -10,6 +10,7 @@ import minetweaker.annotations.ModOnly;
 import minetweaker.api.item.IIngredient;
 import minetweaker.api.item.IItemStack;
 import minetweaker.api.liquid.ILiquidStack;
+import org.apache.commons.lang3.tuple.Pair;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
@@ -34,10 +35,15 @@ public class AssemblyLine {
      */
     @ZenMethod
     public static void addRecipe(IItemStack aResearchItem, int aResearchTime, IItemStack[] aInputs, ILiquidStack[] aFluidInputs, IItemStack aOutput, int aDuration, int aEUt) {
-        MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Assembly Line recipe for " + aOutput, aResearchItem, aResearchTime, aInputs, aFluidInputs, aOutput, aDuration, aEUt) {
+        MineTweakerAPI.apply(new AddMultipleRecipeAction<Pair<GT_Recipe[], GT_Recipe.GT_Recipe_AssemblyLine>>("Adding Assembly Line recipe for " + aOutput, aResearchItem, aResearchTime, aInputs, aFluidInputs, aOutput, aDuration, aEUt) {
             @Override
-            protected void applySingleRecipe(ArgIterator i) {
-                RA.addAssemblylineRecipe(i.nextItem(), i.nextInt(), i.nextItemArr(), i.nextFluidArr(), i.nextItem(), i.nextInt(), i.nextInt());
+            protected Pair<GT_Recipe[], GT_Recipe.GT_Recipe_AssemblyLine> applySingleRecipe(ArgIterator i) {
+                return RA.addAssemblylineRecipeRemovable(i.nextItem(), i.nextInt(), i.nextItemArr(), i.nextFluidArr(), i.nextItem(), i.nextInt(), i.nextInt());
+            }
+
+            @Override
+            protected void undoSingleRecipe(Pair<GT_Recipe[], GT_Recipe.GT_Recipe_AssemblyLine> recipe) {
+                RA.removeAssemblylineRecipe(recipe);
             }
         });
     }

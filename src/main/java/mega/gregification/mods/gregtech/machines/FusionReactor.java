@@ -1,6 +1,7 @@
 package mega.gregification.mods.gregtech.machines;
 
 import gregtech.api.util.GT_Recipe;
+import mega.gregification.mods.AddGTDirectRecipeAction;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.annotations.ModOnly;
@@ -35,10 +36,15 @@ public class FusionReactor {
      */
     @ZenMethod
     public static void addRecipe(ILiquidStack fluidOutput, ILiquidStack fluidInput1, ILiquidStack fluidInput2, int durationTicks, int euPerTick, int startEU) {
-        MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Fusion Reactor recipe for " + fluidOutput, fluidInput1, fluidInput2, fluidOutput, durationTicks, euPerTick, startEU) {
+        MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe>("Adding Fusion Reactor recipe for " + fluidOutput, fluidInput1, fluidInput2, fluidOutput, durationTicks, euPerTick, startEU) {
             @Override
-            protected void applySingleRecipe(ArgIterator i) {
-                RA.addFusionReactorRecipe(i.nextFluid(), i.nextFluid(), i.nextFluid(), i.nextInt(), i.nextInt(), i.nextInt());
+            protected GT_Recipe applySingleRecipe(ArgIterator i) {
+                return RA.addFusionReactorRecipeRemovable(i.nextFluid(), i.nextFluid(), i.nextFluid(), i.nextInt(), i.nextInt(), i.nextInt());
+            }
+
+            @Override
+            protected void undoSingleRecipe(GT_Recipe recipe) {
+                RA.removeFusionReactorRecipe(recipe);
             }
         });
     }
@@ -48,14 +54,8 @@ public class FusionReactor {
         if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
-                    inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
-                @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),0);
-                    GT_Recipe.GT_Recipe_Map.sFusionRecipes.addRecipe(recipe);
-                }
-            });
+            MineTweakerAPI.apply(new AddGTDirectRecipeAction(GT_Recipe.GT_Recipe_Map.sFusionRecipes, "Adding Fusion Reactor recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+                                                             inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick));
         }
     }
 }

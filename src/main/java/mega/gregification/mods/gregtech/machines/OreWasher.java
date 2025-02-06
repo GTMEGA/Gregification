@@ -1,6 +1,7 @@
 package mega.gregification.mods.gregtech.machines;
 
 import gregtech.api.util.GT_Recipe;
+import mega.gregification.mods.AddGTDirectRecipeAction;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.annotations.ModOnly;
@@ -22,10 +23,15 @@ import static gregtech.api.enums.GT_Values.RA;
 public class OreWasher {
     @ZenMethod
     public static void addRecipe(IItemStack output1, IItemStack output2, IItemStack output3, IIngredient input, FluidStack fluidInput, int durationTicks, int euPerTick) {
-        MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding ore washer recipe for " + output1, input, output1, output2, output3, fluidInput, durationTicks, euPerTick) {
+        MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe>("Adding Ore Washer recipe for " + output1, input, output1, output2, output3, fluidInput, durationTicks, euPerTick) {
             @Override
-            protected void applySingleRecipe(ArgIterator i) {
-                RA.addOreWasherRecipe(i.nextItem(), i.nextItem(), i.nextItem(), i.nextItem(), i.nextFluid(), i.nextInt(), i.nextInt());
+            protected GT_Recipe applySingleRecipe(ArgIterator i) {
+                return RA.addOreWasherRecipeRemovable(i.nextItem(), i.nextItem(), i.nextItem(), i.nextItem(), i.nextFluid(), i.nextInt(), i.nextInt());
+            }
+
+            @Override
+            protected void undoSingleRecipe(GT_Recipe recipe) {
+                RA.removeOreWasherRecipe(recipe);
             }
         });
     }
@@ -35,14 +41,8 @@ public class OreWasher {
         if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
-                    inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
-                @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),0);
-                    GT_Recipe.GT_Recipe_Map.sOreWasherRecipes.addRecipe(recipe);
-                }
-            });
+            MineTweakerAPI.apply(new AddGTDirectRecipeAction(GT_Recipe.GT_Recipe_Map.sOreWasherRecipes, "Adding Ore Washer recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+                                                             inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick));
         }
     }
 

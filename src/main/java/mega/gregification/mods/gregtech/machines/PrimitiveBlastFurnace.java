@@ -1,6 +1,7 @@
 package mega.gregification.mods.gregtech.machines;
 
 import gregtech.api.util.GT_Recipe;
+import mega.gregification.mods.AddGTDirectRecipeAction;
 import mega.gregification.mods.AddMultipleRecipeAction;
 import minetweaker.MineTweakerAPI;
 import minetweaker.annotations.ModOnly;
@@ -20,10 +21,15 @@ import static gregtech.api.enums.GT_Values.RA;
 public class PrimitiveBlastFurnace {
     @ZenMethod
     public static void addRecipe(IItemStack output1, IItemStack output2, IIngredient input1, IIngredient input2, int durationTicks, int coalAmount) {
-        MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Primitive Blast Furnace recipe for " + output1, input1, input2, coalAmount, output1, output2, durationTicks) {
+        MineTweakerAPI.apply(new AddMultipleRecipeAction<GT_Recipe[]>("Adding Primitive Blast Furnace recipe for " + output1, input1, input2, coalAmount, output1, output2, durationTicks) {
             @Override
-            protected void applySingleRecipe(ArgIterator i) {
-                RA.addPrimitiveBlastRecipe(i.nextItem(), i.nextItem(), i.nextInt(), i.nextItem(), i.nextItem(), i.nextInt());
+            protected GT_Recipe[] applySingleRecipe(ArgIterator i) {
+                return RA.addPrimitiveBlastRecipeRemovable(i.nextItem(), i.nextItem(), i.nextInt(), i.nextItem(), i.nextItem(), i.nextInt());
+            }
+
+            @Override
+            protected void undoSingleRecipe(GT_Recipe[] recipe) {
+                RA.removePrimitiveBlastRecipe(recipe);
             }
         });
     }
@@ -33,14 +39,8 @@ public class PrimitiveBlastFurnace {
         if ((inputArray.length == 0 && inputFluidArray.length == 0) || (outputArray.length == 0 && outputFluidArray.length == 0)) {
             MineTweakerAPI.logError("Recipe needs at least 1 input and output");
         } else {
-            MineTweakerAPI.apply(new AddMultipleRecipeAction("Adding Blast furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
-                    inputArray, outputArray,chances,inputFluidArray,outputFluidArray, durationTicks, euPerTick) {
-                @Override
-                protected void applySingleRecipe(ArgIterator i) {
-                    GT_Recipe recipe = new GT_Recipe(false,i.nextItemArr(),i.nextItemArr(),null,i.nextIntArr(),i.nextFluidArr(),i.nextFluidArr(),i.nextInt(),i.nextInt(),0);
-                    GT_Recipe.GT_Recipe_Map.sPrimitiveBlastRecipes.addRecipe(recipe);
-                }
-            });
+            MineTweakerAPI.apply(new AddGTDirectRecipeAction(GT_Recipe.GT_Recipe_Map.sPrimitiveBlastRecipes, "Adding Primitive Blast Furnace recipe for " + Arrays.toString(outputArray) + " : " + Arrays.toString(outputFluidArray),
+                                                             inputArray, outputArray, chances, inputFluidArray, outputFluidArray, durationTicks, euPerTick));
         }
     }
 }
